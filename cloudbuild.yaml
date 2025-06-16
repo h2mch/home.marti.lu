@@ -11,9 +11,9 @@ steps:
   - '-t'
   - >-
     $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
-  - quarkus
+  - .
   - '-f'
-  - quarkus/Dockerfile
+  - Dockerfile
   id: Build
 - name: gcr.io/cloud-builders/docker
   args:
@@ -43,14 +43,14 @@ options:
   substitutionOption: ALLOW_LOOSE
   logging: CLOUD_LOGGING_ONLY
 substitutions:
+  _DEPLOY_REGION: europe-west1
   _AR_HOSTNAME: europe-west1-docker.pkg.dev
   _AR_REPOSITORY: cloud-run-source-deploy
-  _AR_PROJECT_ID: static-web-page-462807
+  _AR_PROJECT_ID: home-marti-lu
   _PLATFORM: managed
-  _SERVICE_NAME: rivera
-  _TRIGGER_ID: c5b2ee74-318c-479d-8d3b-f41f0c17ae30
-  _DEPLOY_REGION: europe-west1
+  _SERVICE_NAME: home
+  _TRIGGER_ID: d8f8f6b9-0cee-4c3e-8789-a054afdfb980
 tags:
 - gcp-cloud-build-deploy-cloud-run
 - gcp-cloud-build-deploy-cloud-run-managed
-- rivera
+- home

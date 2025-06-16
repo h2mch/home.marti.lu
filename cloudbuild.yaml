@@ -1,0 +1,56 @@
+steps:
+- name: maven:3.9.6-eclipse-temurin-21
+  entrypoint: mvn
+  args: [ 'clean', 'package', '-DskipTests' ]
+  dir: quarkus
+  id: Maven Build
+- name: gcr.io/cloud-builders/docker
+  args:
+  - build
+  - '--no-cache'
+  - '-t'
+  - >-
+    $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+  - quarkus
+  - '-f'
+  - quarkus/Dockerfile
+  id: Build
+- name: gcr.io/cloud-builders/docker
+  args:
+  - push
+  - >-
+    $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+  id: Push
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+  args:
+  - run
+  - services
+  - update
+  - $_SERVICE_NAME
+  - '--platform=managed'
+  - >-
+    --image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+  - >-
+    --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID
+  - '--region=$_DEPLOY_REGION'
+  - '--quiet'
+  id: Deploy
+  entrypoint: gcloud
+images:
+- >-
+  $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+options:
+  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _AR_HOSTNAME: europe-west1-docker.pkg.dev
+  _AR_REPOSITORY: cloud-run-source-deploy
+  _AR_PROJECT_ID: static-web-page-462807
+  _PLATFORM: managed
+  _SERVICE_NAME: rivera
+  _TRIGGER_ID: c5b2ee74-318c-479d-8d3b-f41f0c17ae30
+  _DEPLOY_REGION: europe-west1
+tags:
+- gcp-cloud-build-deploy-cloud-run
+- gcp-cloud-build-deploy-cloud-run-managed
+- rivera

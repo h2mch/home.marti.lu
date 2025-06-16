@@ -2,7 +2,7 @@ steps:
 - name: maven:3.9.6-eclipse-temurin-21
   entrypoint: mvn
   args: [ 'clean', 'package', '-DskipTests' ]
-  dir: quarkus
+  dir: .
   id: Maven Build
 - name: gcr.io/cloud-builders/docker
   args:
